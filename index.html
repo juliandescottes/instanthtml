@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Real Time HTML Editor</title>
+<style type="text/css" media="screen">
+    #editor { 
+        position: absolute;
+        top: 0;
+        right: 50%;
+        bottom: 0;
+        left: 0;
+    }
+
+    #preview {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width : 50%;
+        height:100%;
+        border:none;
+    }
+</style>
+</head>
+<body>
+    <div id="editor">&lt;html&gt;
+        &lt;head&gt;
+            &lt;title&gt;&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+
+        &lt;/body&gt;
+    &lt;/html&gt;</div>
+    <iframe id="preview"></iframe>
+    <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var frame = document.getElementById("preview");
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.getSession().setMode("ace/mode/html");
+        editor.on("change", function(){
+            frame.contentDocument.write(editor.getValue());
+            frame.contentDocument.close();
+        });
+    </script>
+</body>
+</html>
