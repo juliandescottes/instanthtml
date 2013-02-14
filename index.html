@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<title>Real Time HTML Editor</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+<title>Instant HTML - Real Time Editor</title>
 <style type="text/css" media="screen">
     #editor { 
         position: absolute;
@@ -23,24 +24,29 @@
 </head>
 <body>
     <div id="editor">&lt;html&gt;
-        &lt;head&gt;
-            &lt;title&gt;&lt;/title&gt;
-        &lt;/head&gt;
-        &lt;body&gt;
-
-        &lt;/body&gt;
-    &lt;/html&gt;</div>
+    &lt;head&gt;
+        &lt;title&gt;&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        Type HTML here !
+    &lt;/body&gt;
+&lt;/html&gt;</div>
     <iframe id="preview"></iframe>
     <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var frame = document.getElementById("preview");
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/html");
-        editor.on("change", function(){
+        var updateFrame = function () {
             frame.contentDocument.write(editor.getValue());
             frame.contentDocument.close();
-        });
+        };
+
+        editor = ace.edit("editor");
+        editor.setTheme("ace/theme/idle_fingers");
+        editor.setFontSize("14px");
+        editor.getSession().setMode("ace/mode/html");
+
+        editor.on("change", updateFrame);
+        updateFrame();
     </script>
 </body>
 </html>
