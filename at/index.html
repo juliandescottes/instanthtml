@@ -72,7 +72,7 @@
                         if (res.classDef) {
                             loadTemplateInPreview(res.classDef, data)
                         } else {
-                            console.log("Your template is not compiling")
+                            console.error("Your template is not compiling")
                         }
                         
                     }
@@ -81,7 +81,12 @@
         };
 
         var onchange = function(){
-            eval(model_editor.getValue());
+            try {
+                eval(model_editor.getValue());    
+            } catch (e) {
+                console.error("[MODEL COMPILATION ERROR] : " + e.message);
+                var data = {};
+            }
             loadTemplateFromString(editor.getValue(),data);
         };
 
