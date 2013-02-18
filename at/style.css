@@ -1,0 +1,56 @@
+#editors-container { 
+        position: absolute;
+        top: 0;
+        right: 50%;
+        bottom: 30%;
+        left: 0;
+    }
+
+    .tab-panel {
+        margin-left:41px;
+        height : 30px;
+        font-family: Arial;
+        font-size : 13px;
+        cursor: pointer;
+        background : #FAFAFA;
+    }
+
+    .tab-item {
+        float : left;
+        color: white;
+        line-height: 30px;
+        padding : 0 10px;
+        border-width : 0 1px 0 0;
+        border-color : lightgrey;
+        border-style : solid;
+        background : #646464;
+    }
+
+    .tab-item.tab-selected {
+        background : #323232;   
+    }
+
+    #editor { 
+        position: absolute;
+        top: 30px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    #model { 
+        position: absolute;
+        top: 70%;
+        right: 50%;
+        bottom: 0;
+        left: 0;
+    }
+
+    #preview {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width : 50%;
+        height:100%;
+        border:none;
+    }
