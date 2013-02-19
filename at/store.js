@@ -9,9 +9,18 @@ store = (function (){
 		    method: "GET"
 		}, {
 		    fn: function (a, b, res) {
-		    	eval("var resObject = " + res.responseText);
-		    	delete resObject[0]._id;
-		    	callback.call(null, resObject[0]);
+		    	if (res.status == 200) {
+		    		eval("var snippets = " + res.responseText);
+		    		if (snippets && snippets.length == 1) {
+		    			var snippet = snippets[0];
+			    		callback.call(null, snippet);
+		    		} else {
+			    		callback.call(null, null, "No snippet found for id : " + snippet_id);
+		    		}
+		    	} else {
+		    		callback.call(null, null, "Unexpected error while retrieving : " + snippet_id);
+		    	}
+		    	
 		    },
 		    scope: this
 	    });

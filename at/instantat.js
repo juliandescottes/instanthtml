@@ -36,7 +36,8 @@
 	    try {
 	        eval(model_content);    
 	    } catch (e) {
-	        console.error("[MODEL COMPILATION ERROR] : " + e.message);
+			displayMessage("<span class='error'>DATA MODEL is invalid</span>");
+	        console.error("[DATA MODEL ERROR] : " + e.message);
 	        var data = {};
 	    }
 
@@ -51,7 +52,7 @@
 	                if (res.classDef) {
 	                    loadTemplateInPreview(res.classDef, data)
 	                } else {
-	                    console.error("Your template is not compiling")
+						displayMessage("<span class='error'>TEMPLATE cannot be parsed</span>");
 	                }
 	                
 	            }
@@ -65,6 +66,8 @@
 	        classpath: "Test",
 	        div: "preview",
 	        data: data
+	    },{
+	        	fn : function () {console.log(arguments)}, scope : null
 	    });
 	};
 
@@ -72,6 +75,7 @@
 	    try {
 	        eval("Aria.tplScriptDefinition("+script_content+");");
 	    } catch (e) {
+			displayMessage("<span class='error'>TEMPLATE SCRIPT is invalid</span>");
 	        console.error("[SCRIPT ERROR] : " + e.message);
 	    }
 	};
@@ -84,7 +88,7 @@
 	                if (res.classDef) {
 	                    Aria["eval"](res.classDef); 
 	                } else {
-	                    console.error("Your CSS template is not compiling")
+						displayMessage("<span class='error'>CSS TEMPLATE cannot be parsed</span>");
 	                }
 	            }
 	        },{"file_classpath" : "TestStyle"}
@@ -136,40 +140,55 @@
 		editor.on("change", onEditorChange);
 		data_editor.on("change", onEditorChange);
 
-		var __refresh = function () {
-			var hash = aria.utils.HashManager.getHashObject();
-			if (hash && hash.param0) {
-				var snippet_id = hash.param0;
-				store.load(snippet_id, function (loadedSnippet) {
-					if (loadedSnippet) {
-						snippet = loadedSnippet;
-						refresh();
-					}
-				});
-			} else {
-				refresh();	
-			}
-		}
-		
-		__refresh();
+		refreshUnlessIdInHash();
 
 		aria.utils.HashManager.addCallback({
-			fn : __refresh,
+			fn : refreshUnlessIdInHash,
 			scope : null
 		});
 	};
 
-	
+	var refreshUnlessIdInHash = function () {
+		var hash = aria.utils.HashManager.getHashObject();
+		if (hash && hash.param0) {
+			var snippet_id = hash.param0;
+			displayMessage("Loading " + snippet_id + " ...");
+			store.load(snippet_id, loadSnippetCb);
+		} else {
+			refresh();	
+		}
+	};
 
+	var loadSnippetCb = function (loadedSnippet, errorMessage) {
+		if (loadedSnippet) {
+			displayMessage("<span class='success'>Snippet "+loadedSnippet._id.$oid+" loaded</span>");
+
+			// filter out internal properties
+			delete loadedSnippet._id;
+
+			snippet = loadedSnippet;
+			refresh();	
+		} else {
+			aria.utils.HashManager.setHash("");
+			displayMessage("<span class='error'>" + errorMessage + "</span>");
+		}
+	};
+
+	
+	var messageEl = document.getElementById("general-message"), 
+		messageTimeout;
+
+	var displayMessage = function (text) {
+		messageEl.innerHTML = text;
+		window.clearTimeout(messageTimeout);
+		messageTimeout = window.setTimeout(function () {messageEl.innerHTML=""}, 10000)
+	};
 	var save = function () {
 		store.save(snippet, function (savedSnippet) {
-			var id = savedSnippet._id.$oid, loc = window.location;
-			var link = loc.origin + loc.pathname + "#" + id;
-			console.log("Snippet id : ["+id+"]");
-			console.log("link : " + loc.origin + loc.pathname + "#" + id);
-			document.getElementById("general-message").innerHTML = "Snippet saved at <a href='#"+id+"'>#"+id+"</a>";
+			var id = savedSnippet._id.$oid;
 			aria.utils.HashManager.setHash(id);
-		})
+			window.setTimeout(function () {displayMessage("Snippet saved at <a href='#"+id+"'>#"+id+"</a>")}, 100);
+		});
 	}
 
 	window.iat_selectEditor = selectEditor;

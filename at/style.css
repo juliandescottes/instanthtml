@@ -32,6 +32,10 @@
         font-weight: bold;
     }
 
+    .error {
+        color : red;
+    }
+
     .tab-item:hover {
         text-decoration : underline;
     }
