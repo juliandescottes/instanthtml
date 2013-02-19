@@ -36,7 +36,7 @@
 	    try {
 	        eval(model_content);    
 	    } catch (e) {
-			displayMessage("<span class='error'>DATA MODEL is invalid</span>");
+			displayError("DATA MODEL is invalid");
 	        console.error("[DATA MODEL ERROR] : " + e.message);
 	        var data = {};
 	    }
@@ -52,9 +52,8 @@
 	                if (res.classDef) {
 	                    loadTemplateInPreview(res.classDef, data)
 	                } else {
-						displayMessage("<span class='error'>TEMPLATE cannot be parsed</span>");
+						displayError("TEMPLATE cannot be parsed");
 	                }
-	                
 	            }
 	        },{"file_classpath" : "Test"}
 	    );
@@ -66,8 +65,6 @@
 	        classpath: "Test",
 	        div: "preview",
 	        data: data
-	    },{
-	        	fn : function () {console.log(arguments)}, scope : null
 	    });
 	};
 
@@ -75,7 +72,7 @@
 	    try {
 	        eval("Aria.tplScriptDefinition("+script_content+");");
 	    } catch (e) {
-			displayMessage("<span class='error'>TEMPLATE SCRIPT is invalid</span>");
+			displayError("TEMPLATE SCRIPT is invalid");
 	        console.error("[SCRIPT ERROR] : " + e.message);
 	    }
 	};
@@ -88,7 +85,7 @@
 	                if (res.classDef) {
 	                    Aria["eval"](res.classDef); 
 	                } else {
-						displayMessage("<span class='error'>CSS TEMPLATE cannot be parsed</span>");
+						displayError("CSS TEMPLATE cannot be parsed");
 	                }
 	            }
 	        },{"file_classpath" : "TestStyle"}
@@ -170,7 +167,7 @@
 			refresh();	
 		} else {
 			aria.utils.HashManager.setHash("");
-			displayMessage("<span class='error'>" + errorMessage + "</span>");
+			displayError(errorMessage);
 		}
 	};
 
@@ -183,13 +180,28 @@
 		window.clearTimeout(messageTimeout);
 		messageTimeout = window.setTimeout(function () {messageEl.innerHTML=""}, 10000)
 	};
+	
 	var save = function () {
 		store.save(snippet, function (savedSnippet) {
 			var id = savedSnippet._id.$oid;
 			aria.utils.HashManager.setHash(id);
 			window.setTimeout(function () {displayMessage("Snippet saved at <a href='#"+id+"'>#"+id+"</a>")}, 100);
 		});
-	}
+	};
+
+	var displayError = function (errorMessage) {
+		displayMessage("<span class='error'>" + errorMessage + "</span>");
+	};
+
+	(function () {
+		var errorbkp = console.error;
+		console.error = function (message, originalError) {
+			if (message.indexOf("[Test]") == 0) {
+				displayError("TEMPLATE cannot be processed : " + originalError.message);
+			}
+			errorbkp.apply(this, arguments);
+		}
+	})();
 
 	window.iat_selectEditor = selectEditor;
 	window.iat_save = save;
@@ -202,5 +214,4 @@
     	    }
  	    }
     });
-	
 })();
