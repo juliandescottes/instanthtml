@@ -1,6 +1,5 @@
 {Template {
 	$classpath : "A"
 }}
-	{macro main()}
-	{/macro}
+	{macro main()}{/macro}
 {/Template}

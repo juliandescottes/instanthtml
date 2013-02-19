@@ -7,15 +7,14 @@
     }
 
     .tab-panel {
-        margin-left:41px;
         height : 30px;
         font-family: Arial;
         font-size : 13px;
-        cursor: pointer;
         background : #FAFAFA;
     }
 
     .tab-item {
+        cursor: pointer;
         float : left;
         color: white;
         line-height: 30px;
@@ -26,11 +25,22 @@
         background : #646464;
     }
 
+    .general-message-container {
+        float:left;
+        margin-left : 30px;
+        line-height: 30px;
+        font-weight: bold;
+    }
+
+    .tab-item:hover {
+        text-decoration : underline;
+    }
+
     .tab-item.tab-selected {
         background : #323232;   
     }
 
-    #editor { 
+    #multi-editor { 
         position: absolute;
         top: 30px;
         right: 0;
@@ -38,7 +48,7 @@
         left: 0;
     }
 
-    #model { 
+    #data-editor { 
         position: absolute;
         top: 70%;
         right: 50%;
