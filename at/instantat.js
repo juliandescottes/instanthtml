@@ -30,12 +30,12 @@
 	};
 
 	var refreshErrors = function () {
-		updateAnnotations();
+		updateAnnotations(errors[currentType], editor);
+		updateAnnotations(errors.data, data_editor);
 		updateTabsWithError();
 	};
 
-	var updateAnnotations = function () {
-		var error = errors[currentType];
+	var updateAnnotations = function (error, aceEditor) {
 		var errorLines = extractErrorLines(error),
 			annotations = [];
 		for (var i = 0 ; i < errorLines.length ; i++) {
@@ -45,14 +45,14 @@
 			});
 		}
 		if (annotations.length) {
-			editor.getSession().setAnnotations(annotations);	
+			aceEditor.getSession().setAnnotations(annotations);	
 		} else if (error) {
-			editor.getSession().setAnnotations([{
+			aceEditor.getSession().setAnnotations([{
 			  row: 0, column: 1,
 			  text: error, type: "error" 
 			}]);	
 		} else {
-			editor.getSession().clearAnnotations();
+			aceEditor.getSession().clearAnnotations();
 		}
 	};
 
