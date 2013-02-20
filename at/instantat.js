@@ -247,9 +247,8 @@
 		var errorbkp = console.error;
 		console.error = function (message, originalError) {
 			console.log(arguments);
-			if (message.indexOf("[Test]") == 0) {
-				setError(currentType,"TEMPLATE cannot be processed : " + originalError.message);
-			} else if (/(Parser|ClassGenerator)\]/.test(message)) {
+			if (/(Test|Parser|ClassGenerator)\]/.test(message))  {
+				if (originalError && originalError.message) message = originalError.message;
 				setError(currentType,message);
 			}
 			errorbkp.apply(this, arguments);
