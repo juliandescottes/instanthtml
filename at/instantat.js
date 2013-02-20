@@ -249,7 +249,7 @@
 			console.log(arguments);
 			if (message.indexOf("[Test]") == 0) {
 				setError(currentType,"TEMPLATE cannot be processed : " + originalError.message);
-			} else if (message.indexOf("Parser]") != -1) {
+			} else if (/(Parser|ClassGenerator)\]/.test(message)) {
 				setError(currentType,message);
 			}
 			errorbkp.apply(this, arguments);

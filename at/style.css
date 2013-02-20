@@ -82,7 +82,7 @@
 #error-container-data {
     top : 75%;
     background : #333;
-    color : red;
+    color : rgb(255, 100, 100);
 }
 
 .error-container {
