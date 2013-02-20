@@ -41,8 +41,16 @@
     color : white;
     top : 100%;
     z-index : 200;
+    padding-right: 20px;
 }
 
+.tab-list ul {
+    padding-left : 20px;
+}
+
+.tab-list a:link, .tab-list a:visited, .tab-list a:active, .tab-list a:hover {
+    color : white;
+}
 .tab-list-right {
     right : 0;
 }
