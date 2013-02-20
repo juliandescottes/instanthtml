@@ -1,4 +1,10 @@
 (function () {
+	var TYPES = ["template", "css", "script", "data"],
+		currentType = "template",
+		unplugged = false,
+		editor = null, data_editor = null;
+
+
 	var snippet = {
 	    template : document.getElementById("content-template").innerHTML,
 	    script : document.getElementById("content-script").innerHTML,
@@ -6,10 +12,52 @@
 	    data : document.getElementById("content-data").innerHTML
 	};
 
-	var TYPES = ["template", "css", "script", "data"],
-		currentType = "template",
-		unplugged = false,
-		editor = null, data_editor = null;
+	/************* ERRORS *******************/
+
+	var errors = {
+		template : false,
+		script : false,
+		css : false,
+		data : false
+	};
+
+	var setError = function (type, content) {
+		errors[type] = content;
+		refreshErrors();
+	};
+
+	var refreshErrors = function () {
+		var error = errors[currentType];
+		(error && displayError("main",error)) || removeError("main");
+		error = errors.data;
+		(error && displayError("data",error)) || removeError("data");
+	};
+
+	var displayError = function (container, message) {
+		var containerEl = document.getElementById("error-container-" + container);
+		containerEl.className = "error-displayed error-container";
+		containerEl.innerHTML = message;
+		
+		var lineMatches = message.match(/line (\d+)/);
+		if (lineMatches && lineMatches[1]) {
+			editor.getSession().setAnnotations([{
+			  row: lineMatches[1] - 1,
+			  column: 1,
+			  text: message,
+			  type: "error" // also warning and information
+			}]);
+		}
+		
+		return true;
+	};
+
+	var removeError = function (container) {
+		var containerEl = document.getElementById("error-container-" + container);
+		containerEl.className = "error-container";
+		if (container == "main") {
+			editor.getSession().clearAnnotations();
+		}
+	};
 
 	var updateEditorSilently = function (e, content) {
 		unplugged = true;
@@ -26,18 +74,24 @@
 	    if (type == "script") editor.getSession().setMode("ace/mode/javascript");
 	    if (type == "css") editor.getSession().setMode("ace/mode/css");
 
-	    document.getElementById("tab-" + currentType).className = "tab-item";
+	    if (errors[currentType]) {
+	   		document.getElementById("tab-" + currentType).className = "tab-item tab-error";
+	    } else {
+	    	document.getElementById("tab-" + currentType).className = "tab-item";
+	    }
+
 	    document.getElementById("tab-" + type).className = "tab-item tab-selected";
 
 	    currentType = type;
+	    refreshErrors();
 	};
 
 	var loadModel = function (model_content) {
 	    try {
-	        eval(model_content);    
+	        eval(model_content);  
+			setError("data", false);  
 	    } catch (e) {
-			displayError("DATA MODEL is invalid");
-	        console.error("[DATA MODEL ERROR] : " + e.message);
+			setError("data","[DATA MODEL ERROR] : " + e.message);
 	        var data = {};
 	    }
 
@@ -50,10 +104,9 @@
 	        {
 	            fn : function (res, args) {
 	                if (res.classDef) {
-	                    loadTemplateInPreview(res.classDef, data)
-	                } else {
-						displayError("TEMPLATE cannot be parsed");
-	                }
+						setError("template", false);
+	                    loadTemplateInPreview(res.classDef, data);
+	                } 
 	            }
 	        },{"file_classpath" : "Test"}
 	    );
@@ -71,9 +124,9 @@
 	var loadTemplateScript = function (script_content) {
 	    try {
 	        eval("Aria.tplScriptDefinition("+script_content+");");
+			setError("script", false);  
 	    } catch (e) {
-			displayError("TEMPLATE SCRIPT is invalid");
-	        console.error("[SCRIPT ERROR] : " + e.message);
+			setError("script", "[SCRIPT ERROR] : " + e.message);
 	    }
 	};
 
@@ -83,9 +136,10 @@
 	        {
 	            fn : function (res, args) {
 	                if (res.classDef) {
+						setError("css", false);  
 	                    Aria["eval"](res.classDef); 
 	                } else {
-						displayError("CSS TEMPLATE cannot be parsed");
+						setError("css", "[SCRIPT ERROR] : " + e.message);
 	                }
 	            }
 	        },{"file_classpath" : "TestStyle"}
@@ -189,15 +243,14 @@
 		});
 	};
 
-	var displayError = function (errorMessage) {
-		displayMessage("<span class='error'>" + errorMessage + "</span>");
-	};
-
 	(function () {
 		var errorbkp = console.error;
 		console.error = function (message, originalError) {
+			console.log(arguments);
 			if (message.indexOf("[Test]") == 0) {
-				displayError("TEMPLATE cannot be processed : " + originalError.message);
+				setError(currentType,"TEMPLATE cannot be processed : " + originalError.message);
+			} else if (message.indexOf("Parser]") != -1) {
+				setError(currentType,message);
 			}
 			errorbkp.apply(this, arguments);
 		}
