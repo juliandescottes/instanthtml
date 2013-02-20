@@ -78,6 +78,10 @@
     background : #323232;   
 }
 
+.tab-item.tab-selected.tab-error {
+    background : rgb(240,60,60);
+}
+
 .tab-item.tab-error {
     background : rgb(200,30,0);   
 }
@@ -122,17 +126,15 @@
 .error-container {
     position : fixed;
     right : 52%;
-    width : 25%;
     padding: 10px;
 
     font-family : Consolas, Lucida Console, monospace;
     font-size : 12px;
 
     z-index: 100;
-    opacity : 0;
-    -webkit-transition : opacity 0.5s;
+    display : none;
 }
 
 .error-displayed {
-    opacity: 1;
+    display : block;
 }

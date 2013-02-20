@@ -1,16 +1,15 @@
 (function () {
-	var TYPES = ["template", "css", "script", "data"],
+	var TABS = ["template", "css", "script"],
 		currentType = "template",
 		unplugged = false,
 		editor = null, data_editor = null;
 
-
-	var snippet = {
-	    template : document.getElementById("content-template").innerHTML,
-	    script : document.getElementById("content-script").innerHTML,
-	    css : document.getElementById("content-css").innerHTML,
-	    data : document.getElementById("content-data").innerHTML
-	};
+	var snippet = { 
+        template : "{macro main()}\n    <ul>\n    {foreach fruit in data.fruits}\n        ${fruit}, test\n    {/foreach}\n    </ul>\n{/macro}" , 
+        script : "{\n    $classpath:'TestScript',\n    $prototype : {\n        myMethod : function () {\n\n        }\n    }\n}" , 
+        css : "{macro main()}\n    ul {\n        padding-left : 10px;\n        color:red;\n    }   \n{/macro}" , 
+        data : "var data = {\n    fruits : [\"Banana\", \"Orange\", \"Apple\"]\n}"
+    };
 
 	/************* ERRORS *******************/
 
@@ -26,38 +25,75 @@
 		refreshErrors();
 	};
 
+	var removeError = function (type) {
+		this.setError(type, false);
+	};
+
 	var refreshErrors = function () {
+		updateAnnotations();
+		updateTabsWithError();
+	};
+
+	var updateAnnotations = function () {
 		var error = errors[currentType];
-		(error && displayError("main",error)) || removeError("main");
-		error = errors.data;
-		(error && displayError("data",error)) || removeError("data");
-	};
-
-	var displayError = function (container, message) {
-		var containerEl = document.getElementById("error-container-" + container);
-		containerEl.className = "error-displayed error-container";
-		containerEl.innerHTML = message;
-		
-		var lineMatches = message.match(/line (\d+)/);
-		if (lineMatches && lineMatches[1]) {
-			editor.getSession().setAnnotations([{
-			  row: lineMatches[1] - 1,
-			  column: 1,
-			  text: message,
-			  type: "error" // also warning and information
-			}]);
+		var errorLines = extractErrorLines(error),
+			annotations = [];
+		for (var i = 0 ; i < errorLines.length ; i++) {
+			annotations.push({
+			  row: errorLines[i] - 1, column: 1,
+			  text: error, type: "error" 
+			});
 		}
-		
-		return true;
-	};
-
-	var removeError = function (container) {
-		var containerEl = document.getElementById("error-container-" + container);
-		containerEl.className = "error-container";
-		if (container == "main") {
+		if (annotations.length) {
+			editor.getSession().setAnnotations(annotations);	
+		} else if (error) {
+			editor.getSession().setAnnotations([{
+			  row: 0, column: 1,
+			  text: error, type: "error" 
+			}]);	
+		} else {
 			editor.getSession().clearAnnotations();
 		}
 	};
+
+	var updateTabsWithError = function () {
+		for (var i = 0 ; i < TABS.length ; i++) {
+			var type = TABS[i];
+			if (errors[type]) {
+		   		document.getElementById("tab-" + type).classList.add("tab-error");
+		    } else {
+		    	document.getElementById("tab-" + type).classList.remove("tab-error");
+		    }
+		}
+	}
+
+	var extractErrorLines = function (error) {
+		var lines = [], matches, 
+			re = /line (\d+)/g;
+
+		while (matches = re.exec(error)) {
+			lines.push(matches[1]);
+		}
+
+		return lines;
+	};
+
+	(function () {
+		var errorbkp = console.error;
+		console.error = function (message, originalError) {
+			console.log(arguments);
+			if (/(Test|Parser|ClassGenerator)\]/.test(message))  {
+				if (originalError && originalError.message) message = originalError.message;
+				if (/CSS/.test(message)) {
+					setError("css",message);	
+				} else {
+					setError("template",message);
+				}
+				
+			}
+			errorbkp.apply(this, arguments);
+		}
+	})();
 
 	var updateEditorSilently = function (e, content) {
 		unplugged = true;
@@ -66,30 +102,25 @@
 	}
 
 	var selectEditor = function (evt) {
-	    type = evt.target.innerHTML.toLowerCase(); 
+		var previousType = currentType;
+	    currentType = evt.target.innerHTML.toLowerCase(); 
 
-	    updateEditorSilently(editor, snippet[type]);
+	    updateEditorSilently(editor, snippet[currentType]);
 
-	    if (type == "template") editor.getSession().setMode("ace/mode/html");
-	    if (type == "script") editor.getSession().setMode("ace/mode/javascript");
-	    if (type == "css") editor.getSession().setMode("ace/mode/css");
+	    if (currentType == "template") editor.getSession().setMode("ace/mode/html");
+	    if (currentType == "script") editor.getSession().setMode("ace/mode/javascript");
+	    if (currentType == "css") editor.getSession().setMode("ace/mode/css");
 
-	    if (errors[currentType]) {
-	   		document.getElementById("tab-" + currentType).className = "tab-item tab-error";
-	    } else {
-	    	document.getElementById("tab-" + currentType).className = "tab-item";
-	    }
+	   	document.getElementById("tab-" + previousType).classList.remove("tab-selected");
+	    document.getElementById("tab-" + currentType).classList.add("tab-selected");
 
-	    document.getElementById("tab-" + type).className = "tab-item tab-selected";
-
-	    currentType = type;
 	    refreshErrors();
 	};
 
 	var loadModel = function (model_content) {
 	    try {
 	        eval(model_content);  
-			setError("data", false);  
+			removeError("data");  
 	    } catch (e) {
 			setError("data","[DATA MODEL ERROR] : " + e.message);
 	        var data = {};
@@ -104,7 +135,7 @@
 	        {
 	            fn : function (res, args) {
 	                if (res.classDef) {
-						setError("template", false);
+						removeError("template");
 	                    loadTemplateInPreview(res.classDef, data);
 	                } 
 	            }
@@ -124,7 +155,7 @@
 	var loadTemplateScript = function (script_content) {
 	    try {
 	        eval("Aria.tplScriptDefinition("+script_content+");");
-			setError("script", false);  
+			removeError("script");  
 	    } catch (e) {
 			setError("script", "[SCRIPT ERROR] : " + e.message);
 	    }
@@ -136,7 +167,7 @@
 	        {
 	            fn : function (res, args) {
 	                if (res.classDef) {
-						setError("css", false);  
+						removeError("css");  
 	                    Aria["eval"](res.classDef); 
 	                } else {
 						setError("css", "[SCRIPT ERROR] : " + e.message);
@@ -267,18 +298,6 @@
 	var hideList = function () {
 		document.getElementById("tab-list-snippets").innerHTML = "";
 	};
-
-	(function () {
-		var errorbkp = console.error;
-		console.error = function (message, originalError) {
-			console.log(arguments);
-			if (/(Test|Parser|ClassGenerator)\]/.test(message))  {
-				if (originalError && originalError.message) message = originalError.message;
-				setError(currentType,message);
-			}
-			errorbkp.apply(this, arguments);
-		}
-	})();
 
 	window.iat_selectEditor = selectEditor;
 	window.iat_save = save;
