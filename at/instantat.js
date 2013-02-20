@@ -26,7 +26,7 @@
 	};
 
 	var removeError = function (type) {
-		this.setError(type, false);
+		setError(type, false);
 	};
 
 	var refreshErrors = function () {
