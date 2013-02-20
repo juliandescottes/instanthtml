@@ -37,11 +37,14 @@
     </div>
     <div id="editors-container">
         <div class="tab-panel">
-            <div style="margin-right : 5px;background:rgb(0,133,255)" class="tab-item" onclick="iat_save()">Save</div>
+            <div style="margin-right : 5px;" class="tab-item tab-button" onclick="iat_save()">Save</div>
             <div id="tab-template" class="tab-item tab-selected" onclick="iat_selectEditor(event)">Template</div>
             <div id="tab-script" class="tab-item" onclick="iat_selectEditor(event)">Script</div>
             <div id="tab-css" class="tab-item" onclick="iat_selectEditor(event)">CSS</div>
             <div id="general-message" class="general-message-container"></div>
+            <div class="tab-item tab-item-right tab-button" onclick="iat_list()">
+                <div class="tab-list tab-list-right" id="tab-list-snippets"></div>
+            List</div>
         </div>
         <div id="multi-editor"></div>
     </div>

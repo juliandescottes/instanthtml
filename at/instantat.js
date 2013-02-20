@@ -243,6 +243,31 @@
 		});
 	};
 
+	var listDisplayed = false;
+	var toggleList = function () {
+		if (!listDisplayed) {
+			displayList();
+		} else {
+			hideList();
+		}
+		listDisplayed = !listDisplayed;
+	}
+	var displayList = function () {
+		store.list(function (snippets) {
+			var html = "<ul>";
+			for (var i = 0 ; i <snippets.length ; i++) {
+				var id = snippets[i]._id.$oid;
+				html += "<li><a href='#"+id+"'>#"+id+"</a></li>";	
+			}
+			html += "</ul>";
+			document.getElementById("tab-list-snippets").innerHTML = html;
+		});
+	};
+	
+	var hideList = function () {
+		document.getElementById("tab-list-snippets").innerHTML = "";
+	};
+
 	(function () {
 		var errorbkp = console.error;
 		console.error = function (message, originalError) {
@@ -257,6 +282,7 @@
 
 	window.iat_selectEditor = selectEditor;
 	window.iat_save = save;
+	window.iat_list = toggleList;
 	Aria.load({ 
 		classes:["aria.utils.HashManager"], 
         oncomplete:{

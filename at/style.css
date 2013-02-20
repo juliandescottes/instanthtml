@@ -16,6 +16,7 @@
 .tab-item {
     cursor: pointer;
     float : left;
+    position: relative;
     color: white;
     line-height: 30px;
     padding : 0 10px;
@@ -23,6 +24,31 @@
     border-color : lightgrey;
     border-style : solid;
     background : #646464;
+}
+
+.tab-button {
+    background:rgb(0,133,255);
+}
+
+.tab-item-right {
+    float : right;
+}
+
+.tab-list {
+    position : absolute;
+    background:rgb(0,133,255);
+    font-weight: bold;
+    color : white;
+    top : 100%;
+    z-index : 200;
+}
+
+.tab-list-right {
+    right : 0;
+}
+
+.tab-list-left {
+    left : 0;
 }
 
 .general-message-container {

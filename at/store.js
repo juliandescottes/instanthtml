@@ -1,10 +1,10 @@
 store = (function (){
 	var url = "https://api.mongolab.com/api/1/databases/at-snippets/collections/snippets";
 	var key = "apiKey=eHom4izItOoREUUPRPKfBNwzQdDlO-62";
-	var xhr = new aria.core.transport.BaseXHR();
+	var getXHR = function () {return new aria.core.transport.BaseXHR()};
 
 	var getSnippet = function (snippet_id, callback) {
-		xhr.request({
+		getXHR().request({
 		    url: url + "?" + key + "&q={'_id': { '$oid' : '"+snippet_id+"'}}",
 		    method: "GET"
 		}, {
@@ -27,8 +27,7 @@ store = (function (){
 	};
 
 	var storeSnippet = function (snippet, callback) {
-		console.log(xhr.request+"")
-		xhr.request({
+		getXHR().request({
 		    url: url + "?" + key,
 		    data : JSON.stringify(snippet),
 		    headers : {
@@ -44,8 +43,27 @@ store = (function (){
 	    });
 	};
 
+	var listSnippets = function (callback) {
+		getXHR().request({
+		    url: url + "?" + key,
+		    method: "GET"
+		}, {
+		    fn: function (a, b, res) {
+		    	if (res.status == 200) {
+		    		eval("var snippets = " + res.responseText);
+		    		callback.call(null, snippets);
+		    	} else {
+		    		callback.call(null, null, "Unexpected error while retrieving : " + snippet_id);
+		    	}
+		    	
+		    },
+		    scope: this
+	    });
+	};
+
 	return {
 		load : getSnippet,
-		save :storeSnippet
+		save : storeSnippet,
+		list : listSnippets
 	}
 })();
