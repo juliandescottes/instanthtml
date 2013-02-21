@@ -46,7 +46,7 @@ ErrorManager.prototype.updateErrorTooltip = function (error, editor) {
 			function () {
 				el.style.display = "none";
 			}, 
-			this.TOOLTIP_DURATION
+			ErrorManager.TOOLTIP_DURATION
 		);
 	} else {
 		window.clearTimeout(this._ttrm_timer);
