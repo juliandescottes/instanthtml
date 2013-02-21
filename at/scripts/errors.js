@@ -12,6 +12,8 @@ var ErrorManager = function (editor, data_editor) {
 	this.data_editor = data_editor;
 };
 
+ErrorManager.TOOLTIP_DURATION = 2500;
+
 ErrorManager.prototype.setError = function (type, content) {
 	this.errors[type] = content;
 	this.refreshErrors();
@@ -40,9 +42,12 @@ ErrorManager.prototype.updateErrorTooltip = function (error, editor) {
 
 		window.clearTimeout(this._ttrm_timer);
 		var el = this.tooltipEl;
-		this._ttrm_timer = window.setTimeout(function () {
-			el.style.display = "none";
-		}, 5000)
+		this._ttrm_timer = window.setTimeout(
+			function () {
+				el.style.display = "none";
+			}, 
+			this.TOOLTIP_DURATION
+		);
 	} else {
 		window.clearTimeout(this._ttrm_timer);
 		this.tooltipEl.style.display = "none";
