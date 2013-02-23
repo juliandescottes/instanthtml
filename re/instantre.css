@@ -1,0 +1,68 @@
+body {
+    margin : 0;
+	padding : 0;
+    font-family : "Lucida Console", Monaco, monospace;
+}
+
+.main, .preview {
+    position : fixed;
+    top : 0;
+    bottom:0
+}
+.main {
+    left : 0;
+    right:30%;
+}
+.preview {
+    left : 70%;
+    right:0;
+    padding-left:1px;
+}
+
+.head, .content {
+    width : 100%;
+    background:wheat;
+    position : absolute;
+}
+
+.head {
+    height : 60px;
+}
+
+.content-wrapper {
+	position : relative;
+	margin : 0 60px;
+	height : 60px;
+}
+
+.head .head-logo {
+    float : left;
+    width:60px;
+}
+
+.head .head-button {
+    float : right;
+    width:60px;
+}
+.content {
+    top:60px;
+    background:red;
+    bottom : 0;
+}
+
+#text-editor {
+}
+
+#regexp-input {
+    background: white;
+	margin: 0;
+	padding: 0 10px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	border: none;
+	font-size: 28px;
+	outline:none;
+}

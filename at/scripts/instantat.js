@@ -1,7 +1,7 @@
 (function () {
 	var currentType = "template",
 		unplugged = false,
-		editor = null, data_editor = null;
+		editor = null, store = null, data_editor = null;
 
 	var snippet = { 
         template : "{macro main()}\n    <ul>\n    {foreach fruit in data.fruits}\n        ${fruit}, test\n    {/foreach}\n    </ul>\n{/macro}" , 
@@ -139,6 +139,9 @@
 
 		errors = new ErrorManager(editor, data_editor);
 
+		var key = "apiKey=eHom4izItOoREUUPRPKfBNwzQdDlO-62";
+		store = new MongoStore("at-snippets", "snippets", key);
+
 		refreshUnlessIdInHash();
 
 		aria.utils.HashManager.addCallback({
@@ -152,7 +155,7 @@
 		if (hash && hash.param0) {
 			var snippet_id = hash.param0;
 			displayMessage("Loading " + snippet_id + " ...");
-			store.load(snippet_id, loadSnippetCb);
+			store.get(snippet_id, loadSnippetCb);
 		} else {
 			refresh();	
 		}
@@ -190,34 +193,8 @@
 		});
 	};
 
-	var listDisplayed = false;
-	var toggleList = function () {
-		if (!listDisplayed) {
-			displayList();
-		} else {
-			hideList();
-		}
-		listDisplayed = !listDisplayed;
-	}
-	var displayList = function () {
-		store.list(function (snippets) {
-			var html = "<ul>";
-			for (var i = 0 ; i <snippets.length ; i++) {
-				var id = snippets[i]._id.$oid;
-				html += "<li><a href='#"+id+"'>#"+id+"</a></li>";	
-			}
-			html += "</ul>";
-			document.getElementById("tab-list-snippets").innerHTML = html;
-		});
-	};
-	
-	var hideList = function () {
-		document.getElementById("tab-list-snippets").innerHTML = "";
-	};
-
 	window.iat_selectEditor = selectEditor;
 	window.iat_save = save;
-	window.iat_list = toggleList;
 	window.iat_getCurrentType = function () {return currentType};
 	Aria.load({ 
 		classes:["aria.utils.HashManager"], 

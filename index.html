@@ -36,6 +36,7 @@
     <script>
         var frame = document.getElementById("preview");
         var updateFrame = function () {
+            window.localStorage.instantHtmlSnapshot = editor.getValue();
             frame.contentDocument.write(editor.getValue());
             frame.contentDocument.close();
         };
@@ -46,6 +47,10 @@
         editor.getSession().setMode("ace/mode/html");
 
         editor.on("change", updateFrame);
+
+        if (window.localStorage.instantHtmlSnapshot) {
+            editor.setValue(window.localStorage.instantHtmlSnapshot);
+        }
         updateFrame();
     </script>
 </body>
