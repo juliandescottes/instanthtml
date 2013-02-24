@@ -1,7 +1,8 @@
 (function () {
 	var input = document.getElementById("regexp-input"),
 		textEl = document.getElementById("text-editor"),
-		resultsEl = document.getElementById("matches-list");
+		resultsEl = document.getElementById("matches-list"),
+		previewEl = document.getElementById("results-preview");
 
 	var editor = null, store = null;
 
@@ -48,9 +49,11 @@
 		try {
 			eval("var re = " + reString);	
 			input.classList.remove("input-error");
+			previewEl.classList.remove("out-of-date");
 			return re;
 		} catch (e) {
 			input.classList.add("input-error");
+			previewEl.classList.add("out-of-date");
 			console.error("invalid regular expression : " + reString);
 		}
 	};
@@ -99,11 +102,17 @@
 				if(safe++>max) break;
 				results.push(createMarkupForMatch(match));
 			}
-			if (results.length > 0) {
-				var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found";
+			var resultTitle;
+			var l = results.length; 
+			if (l > 0) {
+				if (l >= max) {
+					resultTitle =  "More than " + max + " matches found";
+				} else {
+					resultTitle =  l + (l>1 ? " matches found" : " match found");
+				}
 				resultsEl.innerHTML = "<ul>" + results.join("") + "</ul>";	
 			} else {
-				var resultTitle = "No matches";
+				resultTitle = "No matches";
 				resultsEl.innerHTML = "";
 			}
 			document.getElementById("matches-header").innerHTML = resultTitle;
