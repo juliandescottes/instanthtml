@@ -62,12 +62,14 @@
 				if(safe++>max) break;
 				results.push(escape(matches+""));
 			}
-			var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found"; 
+			if (results.length > 0) {
+				var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found"; 
+				resultsEl.innerHTML = "<ul><li>" + results.join("</li><li>") + "</li></ul>";	
+			} else {
+				var resultTitle = "No matches"
+			}
 			document.getElementById("matches-header").innerHTML = resultTitle;
-
-			console.log(editor.findAll + "");
-			//editor.findAll(parseRe(input.value));
-			resultsEl.innerHTML = "<ul><li>" + results.join("</li><li>") + "</li></ul>";
+			
 		}
 		window.localStorage.instantReSnapshot = JSON.stringify({
 			"re" : input.value,
