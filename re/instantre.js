@@ -66,7 +66,8 @@
 				var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found"; 
 				resultsEl.innerHTML = "<ul><li>" + results.join("</li><li>") + "</li></ul>";	
 			} else {
-				var resultTitle = "No matches"
+				var resultTitle = "No matches";
+				resultsEl.innerHTML = "";
 			}
 			document.getElementById("matches-header").innerHTML = resultTitle;
 			
