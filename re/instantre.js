@@ -7,9 +7,9 @@
 
 	editor = ace.edit("text-editor");
 	editor.setTheme("ace/theme/idle_fingers");
+        editor.getSession().setMode("ace/mode/text");
 	editor.setFontSize("14px");
-	editor.getSession().setMode("ace/mode/html");
-	editor.renderer.setShowGutter(false);
+	//editor.renderer.setShowGutter(false);
 
 	var key = "apiKey=eHom4izItOoREUUPRPKfBNwzQdDlO-62";
 	store = new MongoStore("instant-re", "snippets", key);
@@ -23,6 +23,7 @@
 		input.value = re;
 		editor.setValue(text);
 		refresh();
+		editor.moveCursorTo(0,0);
 	};
 
 	var escape = function (text) {
@@ -52,19 +53,53 @@
 		}
 	};
 
+	var indexToline = function (index, doc) {
+		var lines = doc.$lines, endIndex = 0;
+		for (var i = 0 ; i < lines.length ; i++) {
+			endIndex += lines[i].length;
+			if (index < endIndex) {
+				return i;
+			}
+		}
+	}
+
+	var createMarkupForMatch = function (match) {
+		var html = "";
+		var matchedString = escape(match[0]);
+		var groups = match.splice(1);
+		console.log(match);
+		if(groups.length > 0) {
+			for (var i = 0 ; i < groups.length ; i++) {
+				html += "<span class='matched-group'>" + escape(groups[i]) + "</span>";
+			}
+			html += "found in " + "<span class='matched-string'>" + matchedString + "</span>"; 
+		} else {
+			html += "<span class='matched-string'>" + matchedString + "</span>";
+		}
+
+        var line = indexToline(match.index, editor.getSession().getDocument());
+		return "<li title='jump to line "+(line+1)+"' onclick='scrollToLine("+(line+1)+")'>" + html + " (line:" + (line+1) + ")</li>";
+	};
+
+	window.scrollToLine = function (line) {
+		editor.setAnimatedScroll(true);
+		editor.gotoLine(line, 0, true);
+	}
+
 	var refresh = function(){
+		if(input.value.length = 0) return;
 		var userRe = parseRe(input.value);
 		if (userRe) {
 			var text = unescape(editor.getValue());
 			// escape(text.match(userRe)+"")
-			var matches, results = [], safe = 0, max = 100;
-			while (matches = userRe.exec(text)) {
+			var match, results = [], safe = 0, max = 100;
+			while (match = userRe.exec(text)) {
 				if(safe++>max) break;
-				results.push(escape(matches+""));
+				results.push(createMarkupForMatch(match));
 			}
 			if (results.length > 0) {
-				var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found"; 
-				resultsEl.innerHTML = "<ul><li>" + results.join("</li><li>") + "</li></ul>";	
+				var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found";
+				resultsEl.innerHTML = "<ul>" + results.join("") + "</ul>";	
 			} else {
 				var resultTitle = "No matches";
 				resultsEl.innerHTML = "";
@@ -81,6 +116,7 @@
 	if (window.localStorage.instantReSnapshot) {
 		eval("var snippet = " + window.localStorage.instantReSnapshot);
 		load(snippet.re, snippet.text);
+		input.focus();
 	}
 
 	window.addEventListener("keyup", refresh);

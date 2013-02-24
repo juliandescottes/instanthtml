@@ -28,6 +28,8 @@ body {
 .head {
     height : 60px;
     line-height: 60px;
+    box-shadow : 0 0px 4px black;
+    z-index:20;
 }
 
 .head-matches-title {
@@ -69,7 +71,6 @@ body {
 #matches-list {
     color : white;
     line-height: 20px;
-    text-indent: 20px;
     overflow: auto;
 }
 
@@ -81,7 +82,22 @@ body {
 
 #matches-list li {
     padding:10px;
+    color:white;
+    font-size:12px;
+    font-weight:normal;
     border-bottom: 1px Solid grey;
+    cursor:pointer;
+}
+
+#matches-list li .matched-group {
+    border : 1px dotted grey;
+    margin-right : 5px;
+    padding : 0 2px;
+    color : cyan;
+}
+
+#matches-list li .matched-string {
+    color : wheat;
 }
 
 #regexp-input {
@@ -94,10 +110,24 @@ body {
 	left: 0;
 	position: absolute;
 	border: none;
+    color : grey;
 	font-size: 28px;
 	outline:none;
     -webkit-transition : box-shadow 0.3s;
     -moz-transition : box-shadow 0.3s;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+    color: lightgrey;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: lightgrey;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: lightgrey;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: lightgrey;
 }
 
 #regexp-input:focus {
