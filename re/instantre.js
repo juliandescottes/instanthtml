@@ -83,7 +83,7 @@
 
 	window.scrollToLine = function (line) {
 		editor.setAnimatedScroll(true);
-		editor.gotoLine(line, 0, true);
+		editor.gotoLine(line, 0, true); //test
 	}
 
 	var refresh = function(){
