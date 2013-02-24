@@ -27,10 +27,12 @@
 	};
 
 	var escape = function (text) {
+		if(typeof text != "string") text = "";
 		return text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	};
 
 	var unescape = function (text) {
+		if(typeof text != "string") text = "";
 		return text.replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&");
 	};
 
@@ -55,6 +57,7 @@
 
 	var indexToline = function (index, doc) {
 		var lines = doc.$lines, endIndex = 0;
+		console.log(doc.$lines);
 		for (var i = 0 ; i < lines.length ; i++) {
 			endIndex += lines[i].length;
 			if (index < endIndex) {
@@ -66,9 +69,8 @@
 	var createMarkupForMatch = function (match) {
 		var html = "";
 		var matchedString = escape(match[0]);
-		var groups = match.splice(1);
-		console.log(match);
-		if(groups.length > 0) {
+		if(match.length > 1) {
+			var groups = match.splice(1);
 			for (var i = 0 ; i < groups.length ; i++) {
 				html += "<span class='matched-group'>" + escape(groups[i]) + "</span>";
 			}
@@ -77,7 +79,7 @@
 			html += "<span class='matched-string'>" + matchedString + "</span>";
 		}
 
-        var line = indexToline(match.index, editor.getSession().getDocument());
+        var line = indexToline(match.index-1, editor.getSession().getDocument());
 		return "<li title='jump to line "+(line+1)+"' onclick='scrollToLine("+(line+1)+")'>" + html + " (line:" + (line+1) + ")</li>";
 	};
 
