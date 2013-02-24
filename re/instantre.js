@@ -22,7 +22,7 @@
 	var load = function (re, text) {
 		input.value = re;
 		editor.setValue(text);
-		ire_change();
+		refresh();
 	};
 
 	var escape = function (text) {
@@ -44,6 +44,7 @@
 		}
 		try {
 			eval("var re = " + reString);	
+			input.classList.remove("input-error");
 			return re;
 		} catch (e) {
 			input.classList.add("input-error");
@@ -51,24 +52,33 @@
 		}
 	};
 
-	window.ire_change = function(){
+	var refresh = function(){
 		var userRe = parseRe(input.value);
 		if (userRe) {
 			var text = unescape(editor.getValue());
-			var matches, results = [], safe = 0 ;
+			// escape(text.match(userRe)+"")
+			var matches, results = [], safe = 0, max = 100;
 			while (matches = userRe.exec(text)) {
+				if(safe++>max) break;
 				results.push(escape(matches+""));
 			}
-			resultsEl.innerHTML = results.join("<br/>");
-			window.localStorage.instantReSnapshot = JSON.stringify({
-				"re" : input.value,
-				"text" : editor.getValue()
-			});
-		}		
+			var resultTitle = (results.length >= max ? "More than " + max : results.length ) + " matches found"; 
+			document.getElementById("matches-header").innerHTML = resultTitle;
+
+			console.log(editor.findAll + "");
+			//editor.findAll(parseRe(input.value));
+			resultsEl.innerHTML = "<ul><li>" + results.join("</li><li>") + "</li></ul>";
+		}
+		window.localStorage.instantReSnapshot = JSON.stringify({
+			"re" : input.value,
+			"text" : editor.getValue()
+		});
 	};
 
 	if (window.localStorage.instantReSnapshot) {
 		eval("var snippet = " + window.localStorage.instantReSnapshot);
 		load(snippet.re, snippet.text);
 	}
+
+	window.addEventListener("keyup", refresh);
 })();
