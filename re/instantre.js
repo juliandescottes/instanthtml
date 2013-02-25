@@ -9,7 +9,7 @@
 	editor = ace.edit("text-editor");
 	editor.setTheme("ace/theme/idle_fingers");
         editor.getSession().setMode("ace/mode/text");
-	editor.setFontSize("14px");
+	editor.setFontSize("16px");
 	//editor.renderer.setShowGutter(false);
 
 	var key = "apiKey=eHom4izItOoREUUPRPKfBNwzQdDlO-62";
