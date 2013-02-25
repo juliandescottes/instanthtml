@@ -60,7 +60,6 @@
 
 	var indexToline = function (index, doc) {
 		var lines = doc.$lines, endIndex = 0;
-		console.log(doc.$lines);
 		for (var i = 0 ; i < lines.length ; i++) {
 			endIndex += lines[i].length;
 			if (index < endIndex) {
