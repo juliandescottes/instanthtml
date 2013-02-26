@@ -1,8 +1,11 @@
 (function () {
+	var MAX_RESULTS = 1000;
+
 	var input = document.getElementById("regexp-input"),
 		textEl = document.getElementById("text-editor"),
 		resultsEl = document.getElementById("matches-list"),
-		previewEl = document.getElementById("results-preview");
+		previewEl = document.getElementById("results-preview"),
+		resultsTitleEl = document.getElementById("matches-header");
 
 	var editor = null, store = null;
 
@@ -58,17 +61,17 @@
 		}
 	};
 
-	var indexToline = function (index, doc) {
-		var lines = doc.$lines, endIndex = 0;
+	var getLineForMatch = function (match, lines) {
+		var index = match.index, endIndex = 0;
 		for (var i = 0 ; i < lines.length ; i++) {
-			endIndex += lines[i].length;
+			endIndex += lines[i].length+1;
 			if (index < endIndex) {
 				return i;
 			}
 		}
 	}
 
-	var createMarkupForMatch = function (match) {
+	var createMarkupForMatch = function (match, line) {
 		var html = "";
 		var matchedString = escape(match[0]);
 		if(match.length > 1) {
@@ -81,7 +84,6 @@
 			html += "<span class='matched-string'>" + matchedString + "</span>";
 		}
 
-        var line = indexToline(match.index-1, editor.getSession().getDocument());
 		return "<li title='jump to line "+(line+1)+"' onclick='scrollToLine("+(line+1)+")'>" + html + " (line:" + (line+1) + ")</li>";
 	};
 
@@ -91,37 +93,50 @@
 	}
 
 	var refresh = function(){
+		// No refresh if empty regex (TODO:Remove errors)
 		if(input.value.length = 0) return;
+		
+		var regexAsString = input.value;
 		var userRe = parseRe(input.value);
+		var text = unescape(editor.getValue());
+		
+		saveToLocalStorage(regexAsString, text);
+
 		if (userRe) {
-			var text = unescape(editor.getValue());
-			// escape(text.match(userRe)+"")
-			var match, results = [], safe = 0, max = 100;
+			var match, matchMarkup, line, results = [], safe = 0;
+			// compute lines outside of main loop (TODO:Caching ?)
+			var lines = text.split("\n");
 			while (match = userRe.exec(text)) {
-				if(safe++>max) break;
-				results.push(createMarkupForMatch(match));
+				if(safe++>MAX_RESULTS) break;
+				line = getLineForMatch(match, lines);
+				matchMarkup = createMarkupForMatch(match, line);
+				results.push(matchMarkup);
 			}
-			var resultTitle;
-			var l = results.length; 
-			if (l > 0) {
-				if (l >= max) {
-					resultTitle =  "More than " + max + " matches found";
-				} else {
-					resultTitle =  l + (l>1 ? " matches found" : " match found");
-				}
-				resultsEl.innerHTML = "<ul>" + results.join("") + "</ul>";	
-			} else {
-				resultTitle = "No matches";
-				resultsEl.innerHTML = "";
-			}
-			document.getElementById("matches-header").innerHTML = resultTitle;
-			
+			resultsEl.innerHTML = "<ul>" + results.join("") + "</ul>";	
+			updateResultsTitle(results.length);
 		}
-		window.localStorage.instantReSnapshot = JSON.stringify({
-			"re" : input.value,
-			"text" : editor.getValue()
-		});
 	};
+
+	var updateResultsTitle = function (resultsCount) {
+		var resultTitle;
+		if (resultsCount > 0) {
+			if (l >= MAX_RESULTS) {
+				resultTitle =  "More than " + MAX_RESULTS + " matches found";
+			} else {
+				resultTitle =  resultsCount + (resultsCount>1 ? " matches found" : " match found");
+			}
+		} else {
+			resultTitle = "No matches";
+		}
+		resultsTitleEl.innerHTML = resultTitle;
+	}
+
+	var saveToLocalStorage = function (re, text) {
+		window.localStorage.instantReSnapshot = JSON.stringify({
+			"re" : re,
+			"text" : text
+		});
+	}
 
 	if (window.localStorage.instantReSnapshot) {
 		eval("var snippet = " + window.localStorage.instantReSnapshot);
