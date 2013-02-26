@@ -120,7 +120,7 @@
 	var updateResultsTitle = function (resultsCount) {
 		var resultTitle;
 		if (resultsCount > 0) {
-			if (l >= MAX_RESULTS) {
+			if (resultsCount >= MAX_RESULTS) {
 				resultTitle =  "More than " + MAX_RESULTS + " matches found";
 			} else {
 				resultTitle =  resultsCount + (resultsCount>1 ? " matches found" : " match found");
