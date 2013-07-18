@@ -20,9 +20,34 @@
         height:100%;
         border:none;
     }
+    #save-button  {
+        position:fixed;
+        right:50%;
+        top:3px;
+        margin-right: 20px;
+        z-index: 15000;
+        border-radius: 2px;
+        border-bottom: 1px solid #4AE;
+        border-top: 1px solid #ADF;
+        text-shadow : 0 -1px 0 #4AE;
+
+        width:60px;
+        height:24px;
+        line-height: 24px;
+        text-align : center;
+        
+        font-family: arial;
+        font-size:0.8rem;
+        font-weight: bold;
+        
+        cursor:pointer;
+        color:white;
+        background:#6BF;
+    }
 </style>
 </head>
 <body>
+    <div id="save-button" onclick="saveSnippet()">save</div>
     <div id="editor">&lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;&lt;/title&gt;
@@ -33,6 +58,7 @@
 &lt;/html&gt;</div>
     <iframe id="preview"></iframe>
     <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="store.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var frame = document.getElementById("preview");
         var updateFrame = function () {
@@ -41,15 +67,35 @@
             frame.contentDocument.close();
         };
 
+        var key = "apiKey=eHom4izItOoREUUPRPKfBNwzQdDlO-62";
+        store = new MongoStore("instanthtml", "instants", key);
+
         editor = ace.edit("editor");
         editor.setTheme("ace/theme/idle_fingers");
         editor.setFontSize("14px");
         editor.getSession().setMode("ace/mode/html");
 
         editor.on("change", updateFrame);
+        
+        window.saveSnippet = function () {
+            store.save({snippet : editor.getValue()}, function (savedSnippet) {
+                var id = savedSnippet._id.$oid;
+                window.location = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + id;
+            });
+        }
 
-        if (window.localStorage.instantHtmlSnapshot) {
-            editor.setValue(window.localStorage.instantHtmlSnapshot);
+        var loadSnippet = function (id) {
+            store.get(id, function (res) {
+                if (res) {
+                    editor.getSession.setValue(res.snippet, 0);
+                    updateFrame();
+                }
+            });
+        };
+        if (window.location.search) {
+            loadSnippet(window.location.search.substring(1));
+        } else if (window.localStorage.instantHtmlSnapshot) {
+            editor.getSession().setValue(window.localStorage.instantHtmlSnapshot,0);
         }
         updateFrame();
     </script>
