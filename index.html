@@ -87,7 +87,7 @@
         var loadSnippet = function (id) {
             store.get(id, function (res) {
                 if (res) {
-                    editor.getSession.setValue(res.snippet, 0);
+                    editor.getSession().setValue(res.snippet, 0);
                     updateFrame();
                 }
             });
