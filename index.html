@@ -5,7 +5,7 @@
     <title>Instant HTML - Real Time Editor</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <style type="text/css" media="screen">
-    #editor { 
+    #editor {
         position: absolute;
         top: 0;
         right: 50%;
@@ -37,7 +37,7 @@
         font-family: arial;
         font-size:1.8rem;
         font-weight: bold;
-        
+
         cursor:pointer;
         color:white;
         background:#6BF;
@@ -67,7 +67,7 @@
     &lt;/body&gt;
 &lt;/html&gt;</div>
     <iframe id="preview"></iframe>
-    <script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="store.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var frame = document.getElementById("preview");
@@ -86,7 +86,7 @@
         editor.getSession().setMode("ace/mode/html");
 
         editor.on("change", updateFrame);
-        
+
         window.saveSnippet = function () {
             store.save({snippet : editor.getValue()}, function (savedSnippet) {
                 var id = savedSnippet._id.$oid;
